@@ -11,11 +11,11 @@
   ],
   "require": {
     "php": "^8.4",
-    "illuminate/process": "^13.0",
-    "illuminate/support": "^13.0"
+    "illuminate/process": "^12.0",
+    "illuminate/support": "^12.0"
   },
   "require-dev": {
-    "orchestra/testbench": "^11.0",
+    "orchestra/testbench": "^10.0",
     "pestphp/pest": "^4.4",
     "pestphp/pest-plugin-laravel": "^4.0"
   },
