@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'binary_path' => base_path('tools/gallery-dl'.(PHP_OS_FAMILY === 'Windows' ? '.exe' : '')),
+    'binary_path' => base_path('tools/gallery-dl'.(PHP_OS_FAMILY === 'Windows' ? '.exe' : '.bin')),
 
     'binary_download_url' => env(
         'GALLERY_DL_BINARY_DOWNLOAD_URL',
