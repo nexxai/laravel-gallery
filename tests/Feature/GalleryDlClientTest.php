@@ -63,12 +63,11 @@ it('creates download directory and includes cookies when downloading', function 
     $client = new GalleryDlClient([
         'binary_path' => $binaryPath,
         'download_path' => $downloadPath,
-        'cookies_path' => $cookiesPath,
         'timeout' => 30,
         'auto_create_download_path' => true,
     ], $process);
 
-    $result = $client->download('https://instagram.com/some-profile', new DateTimeImmutable('2025-02-01'));
+    $result = $client->download('https://instagram.com/some-profile', new DateTimeImmutable('2025-02-01'), $cookiesPath);
 
     expect($result->successful())->toBeTrue();
     expect(is_dir($downloadPath))->toBeTrue();

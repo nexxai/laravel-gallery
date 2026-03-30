@@ -22,13 +22,10 @@ return [
     'binary_path' => base_path('tools/gallery-dl' . (PHP_OS_FAMILY === 'Windows' ? '.exe' : '')),
     'binary_download_url' => 'https://github.com/mikf/gallery-dl/releases/latest/download/gallery-dl',
     'download_path' => storage_path('gallery'),
-    'cookies_path' => env('GALLERY_DL_COOKIES_PATH'),
     'timeout' => 300,
     'auto_create_download_path' => true,
 ];
 ```
-
-Set `GALLERY_DL_COOKIES_PATH=/absolute/path/to/cookies.txt` for platforms that require cookies.
 
 ## Usage
 
@@ -45,6 +42,13 @@ $urls = $gallery->getUrls('https://www.instagram.com/some-profile/', now()->subD
 
 // Download media into configured download_path
 $result = $gallery->download('https://www.instagram.com/some-profile/', now()->subDay());
+
+// Pass a cookies file
+$result = $gallery->download(
+    'https://www.instagram.com/some-profile/',
+    now()->subDay(),
+    '/absolute/path/to/cookies.txt',
+);
 ```
 
 When no date is passed, all available items are fetched.

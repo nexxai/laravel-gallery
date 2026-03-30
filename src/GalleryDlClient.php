@@ -45,9 +45,12 @@ class GalleryDlClient
         );
     }
 
-    public function getUrls(string $url, DateTimeInterface|string|null $dateAfter = null): array
+    public function getUrls(string $url, DateTimeInterface|string|null $dateAfter = null, ?string $cookiesPath = null): array
     {
-        $result = $this->run(array_merge(['-G'], $this->dateAfterArguments($dateAfter), [$url]));
+        $result = $this->run(
+            array_merge(['-G'], $this->dateAfterArguments($dateAfter), [$url]),
+            $cookiesPath,
+        );
 
         if (! $result->successful()) {
             throw new GalleryDlProcessFailed($result);
@@ -59,11 +62,14 @@ class GalleryDlClient
         ));
     }
 
-    public function download(string $url, DateTimeInterface|string|null $dateAfter = null): GalleryDlResult
+    public function download(string $url, DateTimeInterface|string|null $dateAfter = null, ?string $cookiesPath = null): GalleryDlResult
     {
         $this->ensureDownloadDirectoryExists();
 
-        $result = $this->run(array_merge($this->dateAfterArguments($dateAfter), [$url]));
+        $result = $this->run(
+            array_merge($this->dateAfterArguments($dateAfter), [$url]),
+            $cookiesPath,
+        );
 
         if (! $result->successful()) {
             throw new GalleryDlProcessFailed($result);
@@ -83,13 +89,13 @@ class GalleryDlClient
         return $path;
     }
 
-    private function run(array $arguments): GalleryDlResult
+    private function run(array $arguments, ?string $cookiesPath = null): GalleryDlResult
     {
         $this->assertAvailable();
 
         $command = array_merge(
             [$this->binaryPath()],
-            $this->baseArguments(),
+            $this->baseArguments($cookiesPath),
             $arguments,
         );
 
@@ -105,11 +111,11 @@ class GalleryDlClient
         );
     }
 
-    private function baseArguments(): array
+    private function baseArguments(?string $cookiesPath = null): array
     {
         $arguments = ['--dest', $this->downloadPath()];
 
-        $cookiesPath = trim((string) ($this->config['cookies_path'] ?? ''));
+        $cookiesPath = trim((string) $cookiesPath);
 
         if ($cookiesPath !== '') {
             $arguments[] = '--cookies';
