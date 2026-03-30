@@ -1,0 +1,47 @@
+{
+  "name": "nexxai/laravel-gallery",
+  "description": "A Laravel wrapper for gallery-dl",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "JT Smith",
+      "email": "nexxai@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^8.4",
+    "illuminate/process": "^13.0",
+    "illuminate/support": "^13.0"
+  },
+  "require-dev": {
+    "orchestra/testbench": "^11.0",
+    "pestphp/pest": "^4.4",
+    "pestphp/pest-plugin-laravel": "^4.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Nexxai\\LaravelGallery\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Nexxai\\LaravelGallery\\GalleryServiceProvider"
+      ],
+      "aliases": {
+        "GalleryDl": "Nexxai\\LaravelGallery\\Facades\\GalleryDl"
+      }
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  }
+}

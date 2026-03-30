@@ -1,0 +1,20 @@
+<?php
+
+return [
+    'binary_path' => base_path('tools/gallery-dl' . (PHP_OS_FAMILY === 'Windows' ? '.exe' : '')),
+
+    'binary_download_url' => env(
+        'GALLERY_DL_BINARY_DOWNLOAD_URL',
+        PHP_OS_FAMILY === 'Windows'
+            ? 'https://github.com/mikf/gallery-dl/releases/latest/download/gallery-dl.exe'
+            : 'https://github.com/mikf/gallery-dl/releases/latest/download/gallery-dl'
+    ),
+
+    'download_path' => storage_path('gallery'),
+
+    'cookies_path' => env('GALLERY_DL_COOKIES_PATH'),
+
+    'timeout' => (int) env('GALLERY_DL_TIMEOUT', 300),
+
+    'auto_create_download_path' => true,
+];
