@@ -10,9 +10,5 @@ return [
             : 'https://github.com/mikf/gallery-dl/releases/latest/download/gallery-dl.bin'
     ),
 
-    'download_path' => storage_path('gallery'),
-
     'timeout' => (int) env('GALLERY_DL_TIMEOUT', 300),
-
-    'auto_create_download_path' => true,
 ];

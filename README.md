@@ -19,11 +19,14 @@ Published config: `config/gallery-dl.php`
 
 ```php
 return [
-    'binary_path' => base_path('tools/gallery-dl' . (PHP_OS_FAMILY === 'Windows' ? '.exe' : '')),
-    'binary_download_url' => 'https://github.com/mikf/gallery-dl/releases/latest/download/gallery-dl',
-    'download_path' => storage_path('gallery'),
+    'binary_path' => base_path('tools/gallery-dl' . (PHP_OS_FAMILY === 'Windows' ? '.exe' : '.bin')),
+    'binary_download_url' => env(
+        'GALLERY_DL_BINARY_DOWNLOAD_URL',
+        PHP_OS_FAMILY === 'Windows'
+            ? 'https://github.com/mikf/gallery-dl/releases/latest/download/gallery-dl.exe'
+            : 'https://github.com/mikf/gallery-dl/releases/latest/download/gallery-dl.bin'
+    ),
     'timeout' => 300,
-    'auto_create_download_path' => true,
 ];
 ```
 
@@ -37,17 +40,14 @@ $gallery = app(GalleryDlClient::class);
 // Basic binary check
 $available = $gallery->isAvailable();
 
-// Return media URLs only (gallery-dl -G)
-$urls = $gallery->getUrls('https://www.instagram.com/some-profile/', now()->subDay());
+// Resolve profile entries as decoded JSON
+$items = $gallery->resolve('https://www.instagram.com/some-profile/', dateAfter: now()->subDay());
 
-// Download media into configured download_path
-$result = $gallery->download('https://www.instagram.com/some-profile/', now()->subDay());
-
-// Pass a cookies file
-$result = $gallery->download(
+// Pass a cookies file for this run
+$items = $gallery->resolve(
     'https://www.instagram.com/some-profile/',
-    now()->subDay(),
-    '/absolute/path/to/cookies.txt',
+    dateAfter: now()->subDay(),
+    cookiesPath: '/absolute/path/to/cookies.txt',
 );
 ```
 

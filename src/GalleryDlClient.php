@@ -4,6 +4,7 @@ namespace Nexxai\LaravelGallery;
 
 use DateTimeInterface;
 use Illuminate\Process\Factory;
+use JsonException;
 use Nexxai\LaravelGallery\Exceptions\GalleryDlBinaryNotFound;
 use Nexxai\LaravelGallery\Exceptions\GalleryDlException;
 use Nexxai\LaravelGallery\Exceptions\GalleryDlProcessFailed;
@@ -14,7 +15,7 @@ class GalleryDlClient
 
     public function __construct(private readonly array $config = [], ?Factory $process = null)
     {
-        $this->process = $process ?? new Factory();
+        $this->process = $process ?? new Factory;
     }
 
     public function isAvailable(): bool
@@ -45,10 +46,10 @@ class GalleryDlClient
         );
     }
 
-    public function getUrls(string $url, DateTimeInterface|string|null $dateAfter = null, ?string $cookiesPath = null): array
+    public function resolve(string $url, DateTimeInterface|string|null $dateAfter = null, ?string $cookiesPath = null): mixed
     {
         $result = $this->run(
-            array_merge(['-G'], $this->dateAfterArguments($dateAfter), [$url]),
+            array_merge(['--resolve-json', '--no-download'], $this->dateAfterArguments($dateAfter), [$url]),
             $cookiesPath,
         );
 
@@ -56,26 +57,11 @@ class GalleryDlClient
             throw new GalleryDlProcessFailed($result);
         }
 
-        return array_values(array_filter(
-            $result->outputLines(),
-            fn (string $line): bool => (bool) filter_var($line, FILTER_VALIDATE_URL),
-        ));
-    }
-
-    public function download(string $url, DateTimeInterface|string|null $dateAfter = null, ?string $cookiesPath = null): GalleryDlResult
-    {
-        $this->ensureDownloadDirectoryExists();
-
-        $result = $this->run(
-            array_merge($this->dateAfterArguments($dateAfter), [$url]),
-            $cookiesPath,
-        );
-
-        if (! $result->successful()) {
-            throw new GalleryDlProcessFailed($result);
+        try {
+            return json_decode($result->output, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new GalleryDlException('gallery-dl returned invalid JSON.', previous: $e);
         }
-
-        return $result;
     }
 
     public function binaryPath(): string
@@ -113,7 +99,7 @@ class GalleryDlClient
 
     private function baseArguments(?string $cookiesPath = null): array
     {
-        $arguments = ['--dest', $this->downloadPath()];
+        $arguments = [];
 
         $cookiesPath = trim((string) $cookiesPath);
 
@@ -136,35 +122,5 @@ class GalleryDlClient
         }
 
         return ['--date-after', trim((string) $dateAfter)];
-    }
-
-    private function downloadPath(): string
-    {
-        $path = (string) ($this->config['download_path'] ?? '');
-
-        if ($path === '') {
-            throw new GalleryDlException('gallery-dl.download_path is not configured.');
-        }
-
-        return $path;
-    }
-
-    private function ensureDownloadDirectoryExists(): void
-    {
-        if (! ($this->config['auto_create_download_path'] ?? true)) {
-            return;
-        }
-
-        $downloadPath = $this->downloadPath();
-
-        if (is_dir($downloadPath)) {
-            return;
-        }
-
-        if (@mkdir($downloadPath, 0755, true) || is_dir($downloadPath)) {
-            return;
-        }
-
-        throw new GalleryDlException(sprintf('Unable to create download directory [%s].', $downloadPath));
     }
 }
